@@ -1,0 +1,33 @@
+module asic_fsm (
+
+    input wire CLK,
+    input wire areset,
+
+    input wire a,
+    input wire b,
+
+    output wire [1:0] out
+);
+    reg [1:0] state;
+    reg [1:0] next_state;
+
+
+    wire Q1 = state[1];
+    wire Q0 = state[0];
+
+    always @(*) begin
+        next_state[1] = (Q1 & ~Q0 & ~a & ~b)|(Q1 & ~Q0 & a)|(a & ~b);
+        next_state[0] = (Q0 & b)|(~Q1 & ~a & b)|(~Q1 & Q0 & ~a);
+    end
+
+    always @(posedge CLK, negedge areset) begin
+        if (!areset)
+            state <= 2'b00;
+        else
+            state <= next_state;
+    end
+
+    assign out = state;
+
+
+endmodule
